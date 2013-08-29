@@ -80,7 +80,7 @@ end
 def main
   daterange = DateRange.new(Date.new(1950, 1, 1), Date.today)
   permits = collect_all_permits(daterange)
-  puts JSON.pretty_generate(permits)
+  write_json "data/tx-permits.json", permits
 end
 
 main

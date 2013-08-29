@@ -42,7 +42,7 @@ def main
   townships = (12 .. 58)
   townships.each do |township|
     (60 .. 121).each do |range|
-      filename = sprintf("data-unparsed/wy-t%03d-r%03d.json", township, range)
+      filename = sprintf("data/wy-t%03d-r%03d.json", township, range)
       if File.exists? filename
         STDERR.puts "#{filename} already exists, skipping"
       else

@@ -13,11 +13,36 @@ def write_json(filename, obj)
   end
   open(filename+".tmp", "w:UTF-8") {|out| out.puts JSON.pretty_generate(obj)}
   File.rename filename+".tmp", filename
+  STDERR.puts "Wrote #{obj.size} records to #{filename}"
+end
+
+# if top-level obj is array, splits each elt onto a separate line;  otherwise, everything on a single line
+def write_compact_json(filename, obj)
+  begin
+    Dir.mkdir File.dirname(filename)
+  rescue
+  end
+  open(filename+".tmp", "w:UTF-8") do |out| 
+    if obj.kind_of?(Array)
+      out.puts '['
+      obj.each_with_index do |e, i|
+        out.write JSON.generate(e)
+        out.write (i < obj.size - 1) ? ",\n" : "\n"
+      end
+      out.puts ']'
+    else
+      out.puts JSON.generate(obj)
+    end
+    File.rename filename+".tmp", filename
+  end
+  STDERR.puts "Wrote #{obj.size} records to #{filename}"
 end
 
 def read_json(filename)
   open(filename, "r:UTF-8") do |f| 
-    JSON.parse(f.read)
+    ret = JSON.parse(f.read)
+    STDERR.puts "Read #{ret.size} records from #{filename}"
+    ret
   end
 end
 
