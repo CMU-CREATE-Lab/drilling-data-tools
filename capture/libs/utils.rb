@@ -1,3 +1,4 @@
+require "csv"
 require "json"
 require "net/http"
 require "nokogiri"
@@ -77,7 +78,12 @@ end
   
 def table_to_array(table)
   $table = table
-  table.css("tr").map do |row| 
+  rows = table.css("tr")
+  if rows.empty?
+    # Adapt to use for just a row
+    rows = [table]
+  end
+  rows.map do |row| 
     row.css("th,td").flat_map do |e| 
       ret = [cleanup_web_text(e.text)]
       # If colspan is set and > 1, insert blank columns
@@ -89,15 +95,31 @@ def table_to_array(table)
   end
 end
 
+# Returns list of hashes
+# Table is of form
+# key key key key
+# val val val val
+# val val val val
 def table_to_hashes(table)
   array_to_hashes(table_to_array(table))
 end
 
+# Returns list of hashes
+# Table is of form
+# key key key key
+# val val val val
+# val val val val
 def array_to_hashes(table_array)
-  if table_array.size < 2
-    return []
+  # Skip rows of empty strings
+  while true
+    if table_array.size < 2
+      return []
+    end
+    fieldnames = table_array.shift.map {|f| cleanup_field_name(f)}
+    if fieldnames.any? {|x| x != ""}
+      break
+    end
   end
-  fieldnames = table_array.shift.map {|f| cleanup_field_name(f)}
   fieldnames.size.times do |i|
     (i + 1 .. fieldnames.size).each do |j|
       # Replace any empty strings with prev non-empty field name followed by 2, 3, ...
@@ -110,19 +132,38 @@ def array_to_hashes(table_array)
   table_array.map {|row| Hash[*fieldnames.zip(row).flatten]}
 end
 
+# Returns single hash
+# Table is of form
+# key val  key val  key val
+# key val  key val  key val
+
+def interleaved_table_to_hash(table)
+  hash = {}
+  array = table_to_array table
+  array.each do |row|
+    if row.size % 2 == 0
+      hash.merge! Hash[*row]
+    end
+  end
+  hash.delete ""
+  hash
+end
+
 $fetch_url_count = 0
 $fetch_url_use_proxy = false;
 $fetch_url_current_proxy = false;
 $fetch_retry_on_error = false;
 
-def fetch_url(url)
+def fetch_url(url, options = {})
   while true
     begin
       $fetch_url_count += 1
-      open(url,
-           "User-Agent" => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.71 Safari/537.36",
-           :proxy => $fetch_url_current_proxy) do |f|
-        return f.read
+      Timeout::timeout(options[:timeout]) do
+        open(url,
+             "User-Agent" => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.71 Safari/537.36",
+             :proxy => $fetch_url_current_proxy) do |f|
+          return f.read
+        end
       end
     rescue => e
       STDERR.puts "\n\Exception '#{e}' while fetching #{url} (fetch # #{$fetch_url_count})\n"
@@ -151,7 +192,26 @@ def post(url, args)
 end
 
 def nokogiri_doc(html)
+  STDERR.puts "nokogiri_doc deprecated;  please change to nokogiri_parse_html"
+  nokogiri_parse_html(html)
+end
+
+def nokogiri_parse_html(html)
   Nokogiri::HTML(html) {|config| config.strict.nonet}
+end
+
+def nokogiri_parse_xml(xml)
+  Nokogiri::XML(xml) {|config| config.strict.nonet}
+end
+
+def nokogiri_parse_xml_file(filename)
+  File.open(filename) do |f|
+    start = Time.now
+    STDERR.printf("Parsing %.0fKB of XML from %s ...", File.size(filename)/1000, filename)
+    doc = Nokogiri::XML(f) {|config| config.strict.nonet}
+    STDERR.printf " done in %.1f seconds.\n", Time.now - start
+    doc
+  end
 end
 
 def widest_row(table)
@@ -217,5 +277,60 @@ def merge_hashes(a, b)
     end
   end
   a.merge b
+end
+
+def get_leaf_tables(doc)
+  doc.css("table").flat_map do |table|
+    children = get_leaf_tables(table)
+    children.empty? ? [table] : children
+  end
+end
+
+def find_table_matching(doc, regex)
+  get_leaf_tables(doc).each do |table|
+    if table.text =~ regex
+      return table
+    end
+  end
+  return nil
+end
+
+def get_leaf_rows(doc)
+  doc.css("tr").flat_map do |table|
+    children = get_leaf_rows(table)
+    children.empty? ? [table] : children
+  end
+end
+
+def find_row_matching(doc, regex)
+  get_leaf_rows(doc).each do |row|
+    if row.text =~ regex
+      return row
+    end
+  end
+  return nil
+end
+
+def csv_to_hashes(csv)
+  fieldnames = nil
+  rowno = 0
+  ret = []
+  begin
+    CSV.parse(csv) do |fields|
+      if fields.size == 0
+        # skip
+      elsif fieldnames
+        rowno += 1
+        fieldnames.size == fields.size or raise "Header has #{fieldnames.size} elements, but row #{rowno} has #{fields.size} elements"
+        hash = {}
+        ret << Hash[*fieldnames.zip(fields).flatten]      
+      else
+        fieldnames = fields
+      end
+    end
+    ret
+  rescue => e
+    STDERR.puts "Exception #{e.to_s} while parsing CSV at row #{rowno}"
+  end
 end
 

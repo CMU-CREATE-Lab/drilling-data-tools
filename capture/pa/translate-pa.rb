@@ -1,27 +1,7 @@
 #!/usr/bin/env ruby2.0
 
-require "csv"
 require "iconv"
 load File.dirname(__FILE__) + "/../libs/utils.rb"
-
-def csv_to_hashes(csv)
-  fieldnames = nil
-  rowno = 0
-  ret = []
-  CSV.parse(csv) do |fields|
-    if fields.size == 0
-      # skip
-    elsif fieldnames
-      rowno += 1
-      fieldnames.size == fields.size or raise "Header has #{fieldnames.size} elements, but row #{rowno} has #{fields.size} elements"
-      hash = {}
-      ret << Hash[*fieldnames.zip(fields).flatten]      
-    else
-      fieldnames = fields
-    end
-  end
-  ret
-end
 
 csv = open("data/Permits_Issued_Detail.csv") {|i| i.read}
 # from latin1 to utf-8

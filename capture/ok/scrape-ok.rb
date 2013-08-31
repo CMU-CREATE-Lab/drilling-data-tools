@@ -15,26 +15,31 @@ end
 # # returns nil if too many
 # 
 def fetch_permit(id)
-  browser.goto "http://www.occpermit.com/WellBrowse/Webforms/WellInformation.aspx?ID=#{id}"
-  if browser.text_field(:id, /APINumber/).value.empty?
-    return nil
-  end
-  record = {}
-  browser.text_fields.each do |textfield|
-    key = textfield.name.split("$")[-1].sub("txt", "")
-    record[key] = textfield.value.strip
-  end
+  begin
+    browser.goto "http://www.occpermit.com/WellBrowse/Webforms/WellInformation.aspx?ID=#{id}"
+    if browser.text_field(:id, /APINumber/).value.empty?
+      return nil
+    end
+    record = {}
+    browser.text_fields.each do |textfield|
+      key = textfield.name.split("$")[-1].sub("txt", "")
+      record[key] = textfield.value.strip
+    end
   browser.button(:value, "Completions").click
-  completions = browser.frame(:id, /contentRight/).table(:id, /Completion/).when_present.to_a
-  # Remove any blank columns from left of table
-  while (completions[0][0].strip.empty?) do
-    completions.each &:shift
+    completions = browser.frame(:id, /contentRight/).table(:id, /Completion/).when_present.to_a
+    # Remove any blank columns from left of table
+    while (completions[0][0].strip.empty?) do
+      completions.each &:shift
+    end
+    fieldnames = completions.shift
+    record['completions'] = completions.map do |completion|
+      Hash[*fieldnames.zip(completion).flatten]
+    end
+    record
+  rescue => e
+    STDERR.puts "Exception #{e.to_s}.  Clearing browser and retrying"
+    $browser = nil
   end
-  fieldnames = completions.shift
-  record['completions'] = completions.map do |completion|
-    Hash[*fieldnames.zip(completion).flatten]
-  end
-  record
 end
 
 def main

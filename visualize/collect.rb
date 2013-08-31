@@ -1,13 +1,13 @@
 #!/usr/bin/env ruby2.0
 
-load File.dirname(__FILE__) + "/../libs/utils.rb"
+load File.dirname(__FILE__) + "/../capture/libs/utils.rb"
 
 def reload
   load __FILE__
 end
 
 def main
-  wells = Dir.glob("../??/data/translated-??.json").flat_map do |file|
+  wells = Dir.glob("../capture/??/data/translated-??.json").flat_map do |file|
     read_json file
   end
   wells.sort! {|a,b| a['Date'] <=> b['Date']}
