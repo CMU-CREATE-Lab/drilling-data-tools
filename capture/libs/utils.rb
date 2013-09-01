@@ -209,7 +209,7 @@ def nokogiri_parse_xml_file(filename)
     start = Time.now
     STDERR.printf("Parsing %.0fKB of XML from %s ...", File.size(filename)/1000, filename)
     doc = Nokogiri::XML(f) {|config| config.strict.nonet}
-    STDERR.printf " done in %.1f seconds.\n", Time.now - start
+    STDERR.printf " finished in %.1f seconds.\n", Time.now - start
     doc
   end
 end
