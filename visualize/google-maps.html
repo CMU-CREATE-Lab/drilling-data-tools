@@ -31,6 +31,8 @@
         // initialize the map
         var mapOptions = {
           zoom: 4,
+          maxZoom: 25,
+          minZoom: 4,
           center: new google.maps.LatLng(39.3, -95.8),
           mapTypeId: google.maps.MapTypeId.ROADMAP,
           styles: [
@@ -59,8 +61,9 @@
         // initialize WebGL
         gl = canvasLayer.canvas.getContext('experimental-webgl');
 
-       gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
-       gl.enable(gl.BLEND);
+
+        gl.enable(gl.BLEND);
+        gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
 
         createShaderProgram();
         tdl.io.loadArrayBuffer('wells_latlon.bin', loadData);
@@ -86,6 +89,8 @@
         gl.linkProgram(pointProgram);
 
         gl.useProgram(pointProgram);
+
+        gl.aPointSize = gl.getAttribLocation(pointProgram, "aPointSize");
       }
 
       function loadData(arrayBuffer, exception) {
@@ -115,6 +120,7 @@
 
         // tell webgl how buffer is laid out (pairs of x,y coords)
         gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 0, 0);
+
       }
 
       function resize() {
@@ -150,6 +156,7 @@
       }
 
       var seq = 0;
+
       function update() {
         seq = seq + 0.5;
         if (seq > 150) seq = 0;
@@ -158,6 +165,11 @@
         if (pct > 1) pct = 1;
 
         gl.clear(gl.COLOR_BUFFER_BIT);
+
+
+	var pointSize = Math.floor((map.zoom - 4.) / (25. - 4.) * (20. - 1) + 1);
+
+	gl.vertexAttrib1f(gl.aPointSize, pointSize*1.0);
 
         var mapProjection = map.getProjection();
 
@@ -195,15 +207,16 @@
     <script id="pointVertexShader" type="x-shader/x-vertex">
       attribute vec4 worldCoord;
 
-      uniform mat4 mapMatrix;
+      attribute float aPointSize;
 
+      uniform mat4 mapMatrix;
 
       void main() {
         // transform world coordinate by matrix uniform variable
         gl_Position = mapMatrix * worldCoord;
 
         // a constant size for points, regardless of zoom level
-        gl_PointSize = 5.;
+        gl_PointSize = aPointSize;
       }
     </script>
     <script id="pointFragmentShader" type="x-shader/x-fragment">
@@ -213,9 +226,9 @@
         float dist = length(gl_PointCoord.xy - vec2(.5, .5));
         dist = 1. - (dist * 2.);
         dist = max(0., dist);
-        float alpha = (dist > .5) ? 0. : 1.;
-        // set pixels in points to blue-ish
-        gl_FragColor = vec4(.4, .6, .9, 1.) * dist;
+//        float alpha = (dist > .5) ? 0. : 1.;
+        // set pixels in points to malevolent
+        gl_FragColor = vec4(.82, .22, .07, 1.) * dist;
       }
     </script>
   </head>
