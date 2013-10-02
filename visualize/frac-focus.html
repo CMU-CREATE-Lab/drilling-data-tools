@@ -25,8 +25,68 @@
       var POINT_COUNT;
 
       var pixelsToWebGLMatrix = new Float32Array(16);
+
       var mapMatrix = new Float32Array(16);
 
+      var drillingWells;
+
+      var srcData = {"fracfocus": 0, "cmu": 1};
+      var currentIndex = 0;
+
+      function HomeControl(controlDiv, map) {
+        controlDiv.style.padding = '5px';
+
+        var controlUI = document.createElement('select');
+        controlUI.innerHTML = '<option value="fracfocus">FracFocus</option><option value="cmu">CMU</option>';
+        controlDiv.appendChild(controlUI);
+        // Setup the click event listeners: simply set the map to Chicago.
+        google.maps.event.addDomListener(controlUI, 'change', function() {
+          currentIndex = srcData[controlUI.value];
+          drillingWells.update_();
+        });
+      }
+
+      var DrillingWells = function(urls) {
+        this.arrayBuffers = [];
+        var that = this;
+        for (var i = 0; i < urls.length; i++) {
+          var completion = function(index) {
+            return function(arrayBuffer, excpetion) {
+              if (arrayBuffer) {
+                  var data = new DataView(arrayBuffer);
+                  var rawData = new Float32Array(
+                    data.byteLength / Float32Array.BYTES_PER_ELEMENT);
+                  var len = rawData.length;
+                  for (var i = 0; i < len; i += 2) {
+                    lat = data.getFloat32(i * Float32Array.BYTES_PER_ELEMENT, true);
+                    lon = data.getFloat32((i +1 ) * Float32Array.BYTES_PER_ELEMENT, true);
+                    var pixel = LatLongToPixelXY(lat, lon);
+                    rawData[i] = pixel.x;
+                    rawData[i+1] = pixel.y;
+                  }
+                that.arrayBuffers[index] = rawData;
+              }
+              that.update_();
+            }
+          }(i);
+          tdl.io.loadArrayBuffer(urls[i], completion);
+        }
+      }
+
+      DrillingWells.prototype.update_ = function() {
+        if (this.arrayBuffers.length == 2) {
+          gl.clear(gl.COLOR_BUFFER_BIT);
+          pointArrayBuffer = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, pointArrayBuffer);
+          gl.bufferData(gl.ARRAY_BUFFER, this.arrayBuffers[currentIndex], gl.STATIC_DRAW);
+
+          // enable the 'worldCoord' attribute in the shader to receive buffer
+          var attributeLoc = gl.getAttribLocation(pointProgram, 'worldCoord');
+          gl.enableVertexAttribArray(attributeLoc);
+
+          // tell webgl how buffer is laid out (pairs of x,y coords)
+          gl.vertexAttribPointer(attributeLoc, 2, gl.FLOAT, false, 0, 0);               }
+      }
       function init() {
         // initialize the map
         var mapOptions = {
@@ -49,6 +109,12 @@
         var mapDiv = document.getElementById('map-div');
         map = new google.maps.Map(mapDiv, mapOptions);
 
+        var homeControlDiv = document.createElement('div');
+        var homeControl = new HomeControl(homeControlDiv, map);
+
+        homeControlDiv.index = 1;
+        map.controls[google.maps.ControlPosition.TOP_RIGHT].push(homeControlDiv);
+
         // initialize the canvasLayer
         var canvasLayerOptions = {
           map: map,
@@ -66,7 +132,12 @@
         gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
 
         createShaderProgram();
-        tdl.io.loadArrayBuffer('wells_latlon.bin', loadData);
+//        tdl.io.loadArrayBuffer('fracfocus_latlon.bin', function() { alert('fracfocus')});
+//        tdl.io.loadArrayBuffer('wells_latlon.bin', function() { alert('wells')});
+        drillingWells = new DrillingWells(
+          ["fracfocus_latlon.bin",
+          "wells_latlon.bin"]);
+
       }
 
       function createShaderProgram() {
@@ -155,50 +226,32 @@
         matrix[15] += matrix[3]*tx + matrix[7]*ty;
       }
 
-      var seq = 0;
-
       function update() {
-        seq = seq + 0.5;
-        if (seq > 150) seq = 0;
-        var pct = seq / 100;
-        if (pct < 0) pct = 0;
-        if (pct > 1) pct = 1;
+        if (drillingWells.arrayBuffers.length == 2) {
+          gl.clear(gl.COLOR_BUFFER_BIT);
+   	  var pointSize = Math.floor((map.zoom - 4.) / (25. - 4.) * (20. - 1) + 1);
+	  gl.vertexAttrib1f(gl.aPointSize, pointSize*1.0);
 
-        gl.clear(gl.COLOR_BUFFER_BIT);
+          var mapProjection = map.getProjection();
+  
+          // copy pixel->webgl matrix
+          mapMatrix.set(pixelsToWebGLMatrix);
 
+          // Scale to current zoom (worldCoords * 2^zoom)
+          var scale = Math.pow(2, map.zoom);
+          scaleMatrix(mapMatrix, scale, scale);
 
-	var pointSize = Math.floor((map.zoom - 4.) / (25. - 4.) * (20. - 1) + 1);
+          // translate to current view (vector from topLeft to 0,0)
+          var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
+          translateMatrix(mapMatrix, -offset.x, -offset.y);
 
-	gl.vertexAttrib1f(gl.aPointSize, pointSize*1.0);
+          // attach matrix value to 'mapMatrix' uniform in shader
+          var matrixLoc = gl.getUniformLocation(pointProgram, 'mapMatrix');
+          gl.uniformMatrix4fv(matrixLoc, false, mapMatrix);
 
-        var mapProjection = map.getProjection();
-
-        /**
-         * We need to create a transformation that takes world coordinate
-         * points in the pointArrayBuffer to the coodinates WebGL expects.
-         * 1. Start with second half in pixelsToWebGLMatrix, which takes pixel
-         *     coordinates to WebGL coordinates.
-         * 2. Scale and translate to take world coordinates to pixel coords
-         * see https://developers.google.com/maps/documentation/javascript/maptypes#MapCoordinate
-         */
-        
-        // copy pixel->webgl matrix
-        mapMatrix.set(pixelsToWebGLMatrix);
-
-        // Scale to current zoom (worldCoords * 2^zoom)
-        var scale = Math.pow(2, map.zoom);
-        scaleMatrix(mapMatrix, scale, scale);
-
-        // translate to current view (vector from topLeft to 0,0)
-        var offset = mapProjection.fromLatLngToPoint(canvasLayer.getTopLeft());
-        translateMatrix(mapMatrix, -offset.x, -offset.y);
-
-        // attach matrix value to 'mapMatrix' uniform in shader
-        var matrixLoc = gl.getUniformLocation(pointProgram, 'mapMatrix');
-        gl.uniformMatrix4fv(matrixLoc, false, mapMatrix);
-
-        // draw!
-        gl.drawArrays(gl.POINTS, 0, Math.floor(POINT_COUNT * pct));
+          // draw!
+          gl.drawArrays(gl.POINTS, 0, drillingWells.arrayBuffers[currentIndex].length/2.);
+        }
       }
 
       document.addEventListener('DOMContentLoaded', init, false);
