@@ -1,5 +1,6 @@
 drilling-data-tools
 ===================
+_Conda Environment: wells_
 
 Acquisition and management tools for oil and gas drilling data
 
@@ -15,3 +16,21 @@ Most of these scripts are Python scripts within 'capture/multi-state-capture-scr
 These scripts can download shape files, csv files, and scrape ArcGIS servers.
 
 Texas's permit dates are scraped in Ruby, using "watir-webdriver".
+
+## Requirements
+* Python 3
+* Jupyter
+* Psycopg2
+* ArcGIS Python API
+* Selenium Webdrive
+* requests
+* lxml
+
+
+## Environment Setup
+```bash
+conda create -n wells python jupyter psycopg2 requests
+source activate wells
+conda install -c esri arcgis
+pip install lxml
+```
