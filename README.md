@@ -34,3 +34,6 @@ pip install lxml ipython-sql
 
 # Testing
 Export well data using `database-to-bin.ipynb` then fire up an HTTP server (`python3 -m http.server`) and launch [wells.html](wells.html)
+
+# Oil and Gas Learning Resources:
+* Class II Injection Wells: https://www.epa.gov/uic/class-ii-oil-and-gas-related-injection-wells

@@ -1,0 +1,56 @@
+api_prefix,state,name
+01,AL,Alabama
+02,AZ,Arizona
+03,AR,Arkansas
+04,CA,California
+05,CO,Colorado
+06,CT,Connecticut
+07,DE,Delaware
+08,DC,District of Columbia
+09,FL,Florida
+10,GA,Georgia
+11,ID,Idaho
+12,IL,Illinois
+13,IN,Indiana
+14,IA,Iowa
+15,KS,Kansas
+16,KY,Kentucky
+17,LA,Louisiana
+18,ME,Maine
+19,MD,Maryland
+20,MA,Massachusetts
+21,MI,Michigan
+22,MN,Minnesota
+23,MS,Mississippi
+24,MO,Missouri
+25,MT,Montana
+26,NE,Nebraska
+27,NV,Nevada
+28,NH,New Hampshire
+29,NJ,New Jersey
+30,NM,New Mexico
+31,NY,New York
+32,NC,North Carolina
+33,ND,North Dakota
+34,OH,Ohio
+35,OK,Oklahoma
+36,OR,Oregon
+37,PA,Pennsylvania
+38,RI,Rhode Island
+39,SC,South Carolina
+40,SD,South Dakota
+41,TN,Tennessee
+42,TX,Texas
+43,UT,Utah
+44,VT,Vermont
+45,VA,Virginia
+46,WA,Washington
+47,WV,West Virginia
+48,WI,Wisconsin
+49,WY,Wyoming
+50,AK,Alaska
+51,HI,Hawaii
+55,A1,Alaska Offshore
+56,P1,Pacific Coast Offshore
+60,G1,Northern Gulf of Mexico
+61,A2,Atlantic Coast Offshore
