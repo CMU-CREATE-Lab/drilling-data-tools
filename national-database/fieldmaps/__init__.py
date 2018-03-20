@@ -43,9 +43,9 @@ def map_template(map_type, values):
 
     print ('valid options:', s)
     print ("    '%s': {" % t)
-    for item in sorted(values):
-        if item:
-            print ("        '" + item + "': '" + (item.upper() if item.upper() in s else '') + "',")
+    #for item in sorted(values):
+    for item in sorted([value for value in values if value]):
+        print ("        '" + item + "': '" + (item.upper() if item.upper() in s else '') + "',")
     print ("    },")
     
 state_apis = {'WA': '46', 'DE': '07', 'DC': '08', 'WI': '48', 'WV': '47', 'HI': '51', 'FL': '09', 'WY': '49', 
@@ -70,7 +70,7 @@ well_types = {'OIL',
     'WATER',
     'OTHER',
     'UNKNOWN'}
-well_statuses = {'ACTIVE', 'A', 'PA', 'TA', 'SI', 'DRY', 'ORPHAN', 'PERMITTED', 'CANCELLED', 'UNKNOWN'} # PA: plugged and abandoned, TA: temporarily abandoned
+well_statuses = {'ACTIVE', 'INACTIVE', 'A', 'PA', 'TA', 'SI', 'DRY', 'ORPHAN', 'PERMITTED', 'CANCELLED', 'UNKNOWN'} # PA: plugged and abandoned, TA: temporarily abandoned
 well_categories = {'CONVENTIONAL','UNCONVENTIONAL','FRAC','CBM','SERVICE','TEST','STORAGE','WATER','OTHER','UNKNOWN'}
 
 class State(object):
@@ -215,6 +215,9 @@ class Dataset(object):
             else:
                 api = row[self.api_field]
             
+            if not api:
+                continue
+                
             api = re.sub('[\W_]', '', api).upper()
             
             if hasattr(self.state, 'prepend_api') and self.state.prepend_api:
@@ -230,7 +233,7 @@ class Dataset(object):
             try:
                 lon = float(row[self.lon_field])
                 lat = float(row[self.lat_field])
-            except ValueError:        
+            except (ValueError, TypeError):        
                 continue
 
             date = None
