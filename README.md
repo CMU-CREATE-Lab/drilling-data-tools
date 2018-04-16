@@ -6,8 +6,22 @@ Acquisition and management tools for oil and gas drilling data
 
 Last updated 3/18/2018.
 
+# About the Data
+The National Oil and Gas dataset is a compilation of the oil and gas well records for all 34 oil and gas producing states in the United States. Each state maintains a permitting program for drilling wells, and keeps a record of the permitted wells. In most cases, this data is publicly available, and includes the well type, well status (active, plugged and abandoned, etc.) and spud date (the date when drilling is completed).
 
-## Requirements
+There are many types of wells associated with oil and gas extraction, in addition to the bore holes through which the oil or gas is extracted. These include injection wells (used to "push" oil or gas toward an extraction well), disposal wells (used to dispose of drilling byproducts, such as brackish water produced from a gas well), storage wells (used to temporarily store gas underground), test and observation wells, and dry holes. Of these many types of wells, only oil and gas producing bore holes have been included.
+
+The dataset shows the surface location of the bore holes. With the advent of horizontal drilling, multiple wells may be drilled from the same surface pad. These wells would have the same surface hole location, but different bottom hole locations. 
+
+In some cases, the date information associated with older wells is missing or incomplete. For wells drilled in Texas, for example, spud dates are only available for wells drilled since 1970. The records for the 1m+ wells drilled in Texas prior to 1970 are available on microfische slides, and Texas Railroad Commission (which permits drilling in Texas) has not undertaken the effort to digitize this data.
+
+Where missing or incomplete, the wells without date data have been assigned a random date either between the date of onset of signifcant commercial drilling (1894 in Texas, 1924 in New Mexico) and 1984, or between 1960 and 1984 otherwise.
+
+Data for Arkansas, Kentucky, Mississippi, Nebraska, and Oklahoma wells comes from the National Oil and Gas Gateway. Data for handful of wells in Maryland is provided by FracTracker. Data for the Osage Reservation in Oklahoma is not included at this time. This data includes near-shore developments for wells included in the state dataset and within 25 km of the shore. The data does not include other off-shore drilling.
+
+# Instructions for Updating the Data
+
+## Environment Requirements
 * Python 3
 * Jupyter
 * Psycopg2
