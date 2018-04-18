@@ -2,22 +2,24 @@ drilling-data-tools
 ===================
 _Conda Environment: wells_
 
-Acquisition and management tools for oil and gas drilling data
+Acquisition and management tools for oil and gas drilling data.
 
-Last updated 3/18/2018.
+Author: Mark Egge [mark@eateggs.com]
+
+Last Updated: 3/18/2018
 
 # About the Data
-The National Oil and Gas dataset is a compilation of the oil and gas well records for all 34 oil and gas producing states in the United States. Each state maintains a permitting program for drilling wells, and keeps a record of the permitted wells. In most cases, this data is publicly available, and includes the well type, well status (active, plugged and abandoned, etc.) and spud date (the date when drilling is completed).
+The National Oil and Gas dataset presents a compilation of all drilling permit records from all 34 oil and gas producing states. The dataset compiles the publicly available oil and gas drilling records, showing when and where oil and gas wells have been drilled.
 
-There are many types of wells associated with oil and gas extraction, in addition to the bore holes through which the oil or gas is extracted. These include injection wells (used to "push" oil or gas toward an extraction well), disposal wells (used to dispose of drilling byproducts, such as brackish water produced from a gas well), storage wells (used to temporarily store gas underground), test and observation wells, and dry holes. Of these many types of wells, only oil and gas producing bore holes have been included.
+Each state maintains a permitting program for drilling wells, and keeps a record of the permitted wells. This data is publicly available, and typically includes the well type, well status (active, plugged and abandoned, etc.) and spud date (the date when drilling is completed). 
 
-The dataset shows the surface location of the bore holes. With the advent of horizontal drilling, multiple wells may be drilled from the same surface pad. These wells would have the same surface hole location, but different bottom hole locations. 
+Of the many types of drilled wells associated with oil and gas production (exploration, observation, injection control, storage, etc.), this dataset shows only wells drilled for the purpose of producing oil and/or gas. The dataset shows the surface location of the bore holes. With the advent of horizontal drilling, multiple wells may be drilled from the same surface pad. These wells would have the same surface hole location, but different bottom hole locations. 
 
-In some cases, the date information associated with older wells is missing or incomplete. For wells drilled in Texas, for example, spud dates are only available for wells drilled since 1970. The records for the 1m+ wells drilled in Texas prior to 1970 are available on microfische slides, and Texas Railroad Commission (which permits drilling in Texas) has not undertaken the effort to digitize this data.
+In some cases, the date information associated with older wells is missing or incomplete. Wells drilled in Texas prior to 1970, for example, do not have date information available. Where missing or incomplete, the wells without date data have been assigned a random date after the onset of signifcant commercial drilling within the respective state.
 
-Where missing or incomplete, the wells without date data have been assigned a random date either between the date of onset of signifcant commercial drilling (1894 in Texas, 1924 in New Mexico) and 1984, or between 1960 and 1984 otherwise.
+Data for Arkansas, Kentucky, Mississippi, Nebraska, and Oklahoma wells comes from the National Oil and Gas Gateway. Data for Maryland's gas wells is provided by FracTracker. Data for the Osage Reservation in Oklahoma is not included at this time. This data includes near-shore developments for wells included in the state dataset and within 25 km of the shore. The data does not include other off-shore drilling activity. The data includes wells drilled through March 20, 2018.
 
-Data for Arkansas, Kentucky, Mississippi, Nebraska, and Oklahoma wells comes from the National Oil and Gas Gateway. Data for handful of wells in Maryland is provided by FracTracker. Data for the Osage Reservation in Oklahoma is not included at this time. This data includes near-shore developments for wells included in the state dataset and within 25 km of the shore. The data does not include other off-shore drilling.
+The well data can be explored at https://cmu-create-lab.github.io/drilling-data-tools/national-database/wells.html
 
 # Instructions for Updating the Data
 
@@ -51,3 +53,8 @@ Export well data using `database-to-bin.ipynb` then fire up an HTTP server (`pyt
 
 # Oil and Gas Learning Resources:
 * Class II Injection Wells: https://www.epa.gov/uic/class-ii-oil-and-gas-related-injection-wells
+
+_Other Notes_
+Spud dates are only available for Texas wells drilled since 1970. The records for the 1m+ wells drilled in Texas prior to 1970 are available on microfische slides, and Texas Railroad Commission (which permits drilling in Texas) has not undertaken the effort to digitize this data.
+
+There are many types of wells associated with oil and gas extraction, in addition to the bore holes through which the oil or gas is extracted. These include injection wells (used to "push" oil or gas toward an extraction well), disposal wells (used to dispose of drilling byproducts, such as brackish water produced from a gas well), storage wells (used to temporarily store gas underground), test and observation wells, and dry holes. Of these many types of wells, only oil and gas producing bore holes have been included.
