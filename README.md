@@ -1,14 +1,14 @@
 drilling-data-tools
 ===================
-_Conda Environment: wells_
 
-Acquisition and management tools for oil and gas drilling data.
+### Acquisition and management tools for oil and gas drilling data.
 
-Author: Mark Egge [mark@eateggs.com]
+Author: Mark Egge [mark@eateggs.com] - CMU CREATE Lab
 
 Last Updated: 3/18/2018
 
 # About the Data
+
 The National Oil and Gas dataset presents a compilation of all drilling permit records from all 34 oil and gas producing states. The dataset compiles the publicly available oil and gas drilling records, showing when and where oil and gas wells have been drilled.
 
 Each state maintains a permitting program for drilling wells, and keeps a record of the permitted wells. This data is publicly available, and typically includes the well type, well status (active, plugged and abandoned, etc.) and spud date (the date when drilling is completed). 
@@ -19,7 +19,9 @@ In some cases, the date information associated with older wells is missing or in
 
 Data for Arkansas, Kentucky, Mississippi, Nebraska, and Oklahoma wells comes from the National Oil and Gas Gateway. Data for Maryland's gas wells is provided by FracTracker. Data for the Osage Reservation in Oklahoma is not included at this time. This data includes near-shore developments for wells included in the state dataset and within 25 km of the shore. The data does not include other off-shore drilling activity. The data includes wells drilled through March 20, 2018.
 
-The well data can be explored at https://cmu-create-lab.github.io/drilling-data-tools/national-database/wells.html
+The well data can be explored at [https://cmu-create-lab.github.io/drilling-data-tools/wells.html](https://cmu-create-lab.github.io/drilling-data-tools/wells.html)
+
+An experimental version showing the timing of new drilling is here: [https://cmu-create-lab.github.io/drilling-data-tools/wells-decay.html](https://cmu-create-lab.github.io/drilling-data-tools/wells-decay.html)
 
 # Instructions for Updating the Data
 
