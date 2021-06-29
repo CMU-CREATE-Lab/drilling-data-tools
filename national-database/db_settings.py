@@ -1,4 +1,5 @@
 HOST = 'localhost'
 DB = 'wells'
-USER = 'wellsuser'
+# USER = 'wellsuser'
+USER = 'markegge'
 PASSWD = ''
