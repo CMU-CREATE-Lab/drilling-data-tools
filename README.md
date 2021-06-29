@@ -58,3 +58,7 @@ _Other Notes_
 Spud dates are only available for Texas wells drilled since 1970. The records for the 1m+ wells drilled in Texas prior to 1970 are available on microfische slides, and Texas Railroad Commission (which permits drilling in Texas) has not undertaken the effort to digitize this data.
 
 There are many types of wells associated with oil and gas extraction, in addition to the bore holes through which the oil or gas is extracted. These include injection wells (used to "push" oil or gas toward an extraction well), disposal wells (used to dispose of drilling byproducts, such as brackish water produced from a gas well), storage wells (used to temporarily store gas underground), test and observation wells, and dry holes. Of these many types of wells, only oil and gas producing bore holes have been included.
+
+# Branches
+
+The **info** branch is for a never-completed feature that would allow a user to click on a well to return the well information. This functionality would require developing a backend database and web server to handle AJAX requests based on the user click location.
